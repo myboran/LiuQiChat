@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiuQiChat</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+</head>
+<body background="https://w.wallhaven.cc/full/57/wallhaven-57ode5.jpg">
+    <div id="app">
+        <div class="login">
+            <div class="login_left">
+                <div class="login_left_text">
+                    <p class="small">Welcome to</p>
+                    <p class="big">LiuQiChat</p>
+                </div>
+            </div>
+            <div class="login_right">
+                <p class="right_top">— 匿名</p>
+                <div class="icon">
+                    <img src="https://api.multiavatar.com/zhangwenjie.png">
+                </div>
+                <p class="right_button">多人在线聊天</p>
+                <div class="login_bt" v-on:click="login">进入聊天</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+            },
+            methods: {
+                login(){
+                    self.location='chat.html';
+                }
+            },
+        })
+    </script>
+</body>
+<style>
+.login_bt{
+    width: 150px;
+    height: 50px;
+    text-align: center;
+    line-height: 50px;
+    position: absolute;
+    font-size: 26px;
+    font-weight: 600;
+    left: 80px;
+    top: 260px;
+    color: #f1e9e9;
+    font-family: sans-serif;
+    background-color: #42587f;
+    }
+.right_top {
+    position: absolute;
+    left: 200px;
+    top: 90px;
+    color: #f1e9e9;
+    font-size: 17px;
+    font-family: sans-serif;
+}
+.right_button {
+    position: absolute;
+    font-size: 26px;
+    font-weight: 600;
+    left: 70px;
+    top: 30px;
+    color: #f1e9e9;
+    font-family: sans-serif;
+}
+.icon{
+    position: absolute;
+    left: 100px;
+    top: 140px;
+
+}
+.icon img{
+    width: 100px;
+    height: 100px;
+}
+body{
+    margin:0px;
+    background-size: 100%;
+}
+.context{
+    background-color: antiquewhite;
+}
+.login{
+    position: absolute;
+    width: 470px;
+    height: 360px;
+    background-color: #63718c;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+.login_left{
+    position: absolute;
+    width: 160px;
+    height: 360px;
+    background-color: #42587f;
+}
+.login_left_text{
+    position: absolute;
+    width: 100%;
+    height: 100px;
+    top: 37%;
+}
+.small {
+    position: relative;
+    left: 30px;
+    color: #f1e9e9;
+    font-size: 17px;
+    font-family: sans-serif;
+}
+.big {
+    position: relative;
+    left: 20px;
+    font-size: 26px;
+    font-weight: 600;
+    margin-top: 5px;
+    color: #f1e9e9;
+    font-family: sans-serif;
+}
+.login_right{
+    position: relative;
+    left: 160px;
+    width: 310px;
+}
+</style>
+</html>

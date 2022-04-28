@@ -1,0 +1,12 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+option go_package = ".;proto";
+
+service Chat{
+  rpc SendAllMsg(SendInfoRequest) returns (google.protobuf.Empty);
+}
+
+message SendInfoRequest {
+  string uuid = 1;
+  string message = 2;
+}

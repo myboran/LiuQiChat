@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiuQiChat</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+<body background="https://w.wallhaven.cc/full/57/wallhaven-57ode5.jpg">
+    <div id="app">
+        <div class="content">
+            <div class="msg">
+                <div class="msg_div" id="gundong">
+                    <div v-for="msg in msgList" :key="msg.msg" :class="msg.style">
+                        <div v-if="msg.style === 'message other_msg'"><img style="height: 43px;width: 43px;" :src="msg.icon"></div>
+                        <p>{{msg.msg}}<span>{{msg.time}}</span></p>
+                        <div v-if="msg.style === 'message my_msg'"><img style="height: 43px;width: 43px;" :src="msg.icon"></div>
+                    </div>
+                </div>
+
+                <div class="send" style="position: absolute;">
+                    <div style="width: 500px;position: absolute;"  v-on:keyup.enter="sendMsg">
+                        <el-input v-model="input" placeholder="请输入内容"></el-input>
+                    </div>
+                    <div style="position: absolute;left: 500px;">
+                        <el-button type="primary" icon="el-icon-edit" v-on:click="sendMsg"></el-button>
+                    </div>
+                </div>
+            </div>
+            <div class="sys_info">
+                <p>分布式系统</p>
+                使用组件: 
+                    <li>gin</li>
+                    <li>websocket</li>
+                    <li>grpc</li>
+                    <li>mysql</li>
+                    <li>redis</li>
+                    <li>nginx</li>
+                <p>系统状况:</p>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        import {wsaddr} from './config.js'
+        const wsaddrss = wsaddr
+        var app = new Vue({
+            el: '#app',
+            data(){
+                return {
+                    ws: "",
+                    wsaddr: wsaddrss,
+                    userInfo: {
+                        uuid: "",
+                    },
+                    input: "",
+                    msgList: [
+                    ]
+                }
+            },
+            methods: {
+                addMsg(data){
+                    let msg = {}
+                    if(data.uuid===this.userInfo["uuid"]){
+                        msg = {
+                            "msg": data.msg,
+                            "omner": data.uuid,
+                            "style": "message my_msg",
+                            "icon": "https://api.multiavatar.com/"+data.uuid+".png",
+                            "time": data.time
+                        }
+                    } else {
+                        msg = {
+                            "msg": data.msg,
+                            "omner": data.uuid,
+                            "style": "message other_msg",
+                            "icon": "https://api.multiavatar.com/"+data.uuid+".png",
+                            "time": data.time
+                        }
+                    }
+                    return msg
+                },
+                sendMsg(){
+                    if (this.input.trim() == "") {
+                        return
+                    }
+                    const data = {
+                        "uuid": this.userInfo.uuid,
+                        "action": "sendAll",
+                        "msg": this.input
+                    }
+                    this.ws.send(JSON.stringify(data))
+                    this.input = ""
+                    this.$nextTick(()=>{
+                        let msg = document.getElementById("gundong")
+                        msg.scrollTop = msg.scrollHeight 
+
+                    }) 
+                },
+                wsLogin(data){
+                    this.userInfo = {
+                        "uuid": data.uuid,
+                        "icon": "https://api.multiavatar.com/"+data.uuid+".png"
+                    }
+                },
+                wsSendAll(data){
+                    let msg = this.addMsg(data)
+                    this.msgList.push(msg)
+                    this.$nextTick(()=>{
+                        let msg = document.getElementById("gundong")
+                        msg.scrollTop = msg.scrollHeight
+                    })
+                },
+                wsGetChatLog(data){
+                    data.forEach(element => {
+                        let msg = this.addMsg(element)
+                        this.msgList.unshift(msg)
+                    });
+                    this.$nextTick(()=>{
+                        let msg = document.getElementById("gundong")
+                        msg.scrollTop = msg.scrollHeight
+                    })
+                }
+            },
+            mounted(){
+                const that = this
+                setTimeout(() =>{
+                    this.$nextTick(()=>{
+                        let msg = document.getElementById("gundong")
+                        msg.scrollTop = msg.scrollHeight
+                })
+                }, 300)
+                this.ws = new WebSocket(this.wsaddr)
+                this.ws.onopen = function(evt) {
+                    that.ws.send(JSON.stringify({
+                        "action": "getChatLog"
+                    }))
+                };
+                this.ws.onmessage = function(msg) {
+                    const data = JSON.parse(msg.data)
+                    switch (data.type) {
+                    case "login":
+                        that.wsLogin(data.data)
+                        break
+                    case "sendAll":
+                        that.wsSendAll(data.data)
+                        break
+                    case "getChatLog":
+                        that.wsGetChatLog(data.data)
+                    default:
+                        console.log(data)
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+<style>
+.whoami img {
+    width: 77px;
+}
+.whoami{
+    position: absolute;
+    left: -100px;
+    width: 100px;
+    height: 100px;
+}
+.msg_div{
+    position: relative;
+    width: 540px;
+    height: 460px;
+    background-color: #f9ebe9;
+    overflow-y: auto;
+}
+  .msg_div::-webkit-scrollbar {
+    /*滚动条整体样式*/
+    width : 5px;  /*高宽分别对应横竖滚动条的尺寸*/
+  }
+  .msg_div::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    border-radius: 10px;
+    box-shadow   : inset 0 0 5px rgba(0, 0, 0, 0.2);
+    background   : rgb(223, 216, 216);
+  }
+  .msg_div::-webkit-scrollbar-track {
+    /*滚动条里面轨道*/
+    box-shadow   : inset 0 0 5px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    background   : #F4F9F8;
+  }
+
+.message{
+    position: relative;
+    display: flex;
+    width: 100%;
+    margin: 5px, 0;
+
+  }
+  .message p{
+    margin: 7px 16px;
+    padding: 7px;
+    position: relative;
+    right: 0;
+    text-align: right;
+    max-width: 65%;
+    background-color: #C9F1E1;
+    border-radius: 10px;
+    font-size: 0.7em;
+  }
+  .message p::before{
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -12px;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #C9F1E1 0%,#C9F1E1 50%,transparent 50%,transparent);
+  }
+  .message p span{
+    display: block;
+    margin-top: 5px;
+    font-size: 0.85em;
+    opacity: 0.5;
+  }
+  .my_msg{
+    justify-content: flex-end;
+  }
+  
+  .other_msg{
+    justify-content: flex-start;
+  }
+  .other_msg p {
+    background: #CFF3FC;
+    text-align: left;
+  }
+  .message.other_msg p::before{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -12px;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(225deg, #CFF3FC 0%,#CFF3FC 50%,transparent 50%,transparent);
+  }
+.send{
+    position: absolute;
+    top: 460px;
+    width: 540px;
+    height: 40px;
+    background-color: #409eff;
+}
+.msg{
+    position: absolute;
+    width: 600px;
+    height: 500px;
+}
+.sys_info{
+    position: absolute;
+    left: 540px;
+    width: 130px;
+    height: 500px;
+    background-color: #cda398;
+}
+body{
+    margin:0px;
+    background-size: 100%;
+}
+.content{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 670px;
+    height: 500px;
+    background-color: antiquewhite;
+}
+</style>
+</html>

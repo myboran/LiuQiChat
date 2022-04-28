@@ -1,0 +1,26 @@
+Server:
+  Host: 0.0.0.0
+  Port: 6700
+
+WebSocket:
+  Host: 0.0.0.0
+  Port: 6701
+
+# 服务内服发送消息
+GRPC:
+  Host: 0.0.0.0
+  Port: 6702
+
+Mysql:
+  Host: 175.178.97.141
+  Port: 3306
+  User: root
+  PassWord: root
+  DBName: liuqichat
+  # 需要提前创建好库
+
+Redis:
+  Host: 175.178.97.141
+  Port: 6379
+  PassWord: ""
+  DB: 0
